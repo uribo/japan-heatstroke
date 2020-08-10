@@ -5,3 +5,4 @@
 *.pdf
 README.html
 data-raw/*.csv
+.DS_Store

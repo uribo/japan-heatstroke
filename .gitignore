@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 *.pdf
+README.html
+data-raw/*.csv

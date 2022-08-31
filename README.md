@@ -10,7 +10,7 @@
 データ取得のための処理を関数化しています。以下のコードを実行することで必要な関数が読み込まれます。
 
 ```r
-source("https://raw.githubusercontent.com/uribo/japan-heatstroke/master/R/read_moe_wbgt.R")
+source("https://raw.githubusercontent.com/uribo/japan-heatstroke/main/R/read_moe_wbgt.R")
 ```
 
 `read_moe_wbgt()`関数を使い、予測値と実況値の取得を行います。取得対象のデータに応じて、以下のように引数の指定方法が変わります。各データの詳細は暑さ指数(WBGT)予測値等 電子情報提供サービスのページより確認ください。

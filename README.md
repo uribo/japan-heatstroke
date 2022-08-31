@@ -10,6 +10,7 @@
 データ取得のための処理を関数化しています。以下のコードを実行することで必要な関数が読み込まれます。
 
 ```r
+library(magrittr)
 source("https://raw.githubusercontent.com/uribo/japan-heatstroke/main/R/read_moe_wbgt.R")
 ```
 
@@ -31,14 +32,14 @@ read_moe_wbgt(type = "forecast", station_no = "43056")
 
 ```r
 df_wbgt_stations <- 
-  readr::read_csv("data/wbgt_stations2020.csv",
+  readr::read_csv("data/wbgt_stations2022.csv",
                   col_types = "cccc")
 subset(df_wbgt_stations, station_name == "つくば")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("data-raw/yohou_40336.csv",
+parse_moe_wbgt_csv("yohou_43056.csv",
                    file_type = "1-A")
 ```
 
@@ -52,7 +53,7 @@ read_moe_wbgt(type = "forecast", prefecture = "gifu")
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("data-raw/yohou_ibaraki.csv",
+parse_moe_wbgt_csv("yohou_ibaraki.csv",
                    file_type = "1-B")
 ```
 
@@ -66,25 +67,25 @@ read_moe_wbgt(type = "forecast")
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("data-raw/yohou_all.csv",
+parse_moe_wbgt_csv("yohou_all.csv",
                    file_type = "1-C")
 ```
 
 ## 実況値
 
-実況値は過去のデータになります。予測値と同様に地点、都道府県、全地点の単位で取得しますが、期間を選ぶオプションがあります。これは2020年4月からの各月を、YYYYMMの形式で指定します。例えば2020年4月であれば「202004」となります。また実況値は、特定の地点に関してはその実測値を求めることが可能です。
+実況値は過去のデータになります。予測値と同様に地点、都道府県、全地点の単位で取得しますが、期間を選ぶオプションがあります。これは2022年4月からの各月を、YYYYMMの形式で指定します。例えば2022年4月であれば「202204」となります。また実況値は、特定の地点に関してはその実測値を求めることが可能です。
 
 実況値の取得は、データの種類を問わず`read_moe_wbgt(type = "observe")`としてください。また、予測値と同じく`parse_moe_wbgt_csv()`を使うことでダウンロードされたファイルの読み込みにも対応します。
 
 ### 2-A. 地点別
 
 ```r
-read_moe_wbgt(type = "observe", station_no = "43056", year_month = "202004")
+read_moe_wbgt(type = "observe", station_no = "43056", year_month = "202204")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("data-raw/wbgt_40336_202008.csv",
+parse_moe_wbgt_csv("wbgt_43056_202204.csv",
                    file_type = "2-A")
 ```
 
@@ -92,24 +93,24 @@ parse_moe_wbgt_csv("data-raw/wbgt_40336_202008.csv",
 ### 2-B. 都道府県別
 
 ```r
-read_moe_wbgt(type = "observe", prefecture = "gifu", year_month = "202007")
+read_moe_wbgt(type = "observe", prefecture = "gifu", year_month = "202207")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("data-raw/wbgt_ibaraki_202004.csv",
+parse_moe_wbgt_csv("wbgt_gifu_202207.csv",
                    file_type = "2-B")
 ```
 
 ### 2-C. 全地点
 
 ```r
-read_moe_wbgt(type = "observe", year_month = "202004")
+read_moe_wbgt(type = "observe", year_month = "202204")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("data-raw/wbgt_all_202004.csv",
+parse_moe_wbgt_csv("wbgt_all_202204.csv",
                    file_type = "2-C")
 ```
 
@@ -118,18 +119,18 @@ parse_moe_wbgt_csv("data-raw/wbgt_all_202004.csv",
 特定の11地点については実測値のデータ取得が可能です。`read_moe_wbgt()`では`station`引数にローマ字（頭文字のみ大文字）で対象の地点名を与えて実行します。
 
 ```r
-read_moe_wbgt(type = "observe", station = "Osaka", year_month = "202005")
+read_moe_wbgt(type = "observe", station = "Osaka", year_month = "202205")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("data-raw/Tokyo_202004.csv",
+parse_moe_wbgt_csv("Tokyo_202204.csv",
                    file_type = "2-D")
 ```
 
 ## 注意
 
-- 熱中症予防情報サイトからのデータ提供は2020年10月30日までとなります。
+- 熱中症予防情報サイトからのデータ提供は2022年10月26日までとなります。
 - データの詳細、利用に関しては、熱中症予防情報サイトに掲載された情報を参考にしてください。
 
 ## ライセンス

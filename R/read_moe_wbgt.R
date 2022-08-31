@@ -75,24 +75,21 @@ parse_moe_wbgt_csv <- function(path, file_type, .station_no = NULL, .station = N
         readr::read_csv(path,
                         col_types = readr::cols(
                           .default = readr::col_double(),
-                          X1 = readr::col_character(),
-                          X2 = readr::col_character())))
+                          ...1 = readr::col_character(),
+                          ...2 = readr::col_character())))
     
     df <- 
       df %>%
-      tidyr::pivot_longer(cols = seq.int(3, ncol(df)),
+      dplyr::select(!2) %>% 
+      tidyr::pivot_longer(cols = seq.int(2, ncol(df)-1),
                           names_to = "datetime",
                           values_to = "wbgt") %>%
       dplyr::mutate(type = "forecast",
-                    X2 = lubridate::as_datetime(X2,
-                                                format = "%Y/%m/%d %H:%M",
-                                                tz = "Asia/Tokyo"),
                     datetime = lubridate::as_datetime(datetime,
                                                       format = "%Y%m%d %H",
                                                       tz = "Asia/Tokyo")) %>%
       dplyr::relocate(type, .before = 1) %>%
-      dplyr::rename(station_no = X1,
-                    update = X2)
+      dplyr::rename(station_no = ...1)
     
   } else if (file_type == "2-A") {
     if (is.null(.station_no)) {

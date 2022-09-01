@@ -38,6 +38,7 @@ read_moe_wbgt <- function(type, station = NULL, station_no = NULL, prefecture = 
 }
 
 # moe_wbgt_request_url(type = "observe", station_no = st_no_tsukuba, year_month = "202004")
+# moe_wbgt_request_url(type = "observe", station_no = 40336, year_month = "202004")
 # # 小文字
 # moe_wbgt_request_url(type = "observe", prefecture = "tokyo", year_month = "202004")
 # moe_wbgt_request_url(type = "observe", year_month = "202004")
@@ -56,16 +57,31 @@ moe_wbgt_request_url <- function(type, station_no = NULL, prefecture = NULL, sta
       "https://www.wbgt.env.go.jp/prev15WG/dl/yohou_all.csv"
     }
   } else if (type == "observe") {
-    if (!is.null(station_no) & !is.null(year_month)) {
-      glue::glue("{domain_url}/est15WG/dl/wbgt_{station_no}_{year_month}.csv")
-    } else if (!is.null(prefecture) & !is.null(year_month)) {
-      glue::glue("{domain_url}/est15WG/dl/wbgt_{prefecture}_{year_month}.csv")
-    } else if (!is.null(station) & !is.null(year_month)) {
-      glue::glue("{domain_url}/mntr/dl/{station}_{year_month}.csv")
-    } else if (is.null(station_no) & is.null(prefecture) & !is.null(year_month)) {
-      glue::glue("{domain_url}/est15WG/dl/wbgt_all_{year_month}.csv")
-    }  
+    year <- 
+      lubridate::year(lubridate::ym(year_month))
+    if (year == lubridate::year(lubridate::today())) {
+      if (!is.null(station_no) & !is.null(year_month)) {
+        glue::glue("{domain_url}/est15WG/dl/wbgt_{station_no}_{year_month}.csv")
+      } else if (!is.null(prefecture) & !is.null(year_month)) {
+        glue::glue("{domain_url}/est15WG/dl/wbgt_{prefecture}_{year_month}.csv")
+      } else if (!is.null(station) & !is.null(year_month)) {
+        glue::glue("{domain_url}/mntr/dl/{station}_{year_month}.csv")
+      } else if (is.null(station_no) & is.null(prefecture) & !is.null(year_month)) {
+        glue::glue("{domain_url}/est15WG/dl/wbgt_all_{year_month}.csv")
+      }
+    } else {
+      if (!is.null(station_no) & !is.null(year_month)) {
+        glue::glue("{domain_url}/mntr/final/{year}/wbgt_{year}/final_wbgt_{station_no}_{year_month}.csv")
+      }
+    }
   }
+}
+
+moe_wbgt_request_urls <- function(...) {
+  list(...) %>% 
+    purrr::pmap_chr(
+      moe_wbgt_request_url
+    )
 }
 
 parse_moe_wbgt_csv <- function(path, file_type, .station_no = NULL, .station = NULL) {

@@ -85,6 +85,10 @@ moe_wbgt_request_urls <- function(...) {
 }
 
 parse_moe_wbgt_csv <- function(path, file_type, .station_no = NULL, .station = NULL) {
+  file_type <- 
+    rlang::arg_match(file_type,
+                     c("1-A", "1-B", "1-C",
+                       "2-A", "2-B", "2-C", "2-D"))
   if (file_type %in% c("1-A", "1-B", "1-C")) {
     df <- 
       suppressWarnings(

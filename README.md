@@ -1,13 +1,11 @@
 日本国内における熱中症関係のデータセット
 =================
 
-日本国内における熱中症関係のデータを取得、利用しやすいtidyな形式に変換します。
+日本国内における熱中症情報を提供するウェブサイトから、Rで利用可能な形式にデータを読み込む処理を提供しています。
 
 ## 対象データ
 
-[環境省 熱中症予防情報サイト](https://www.wbgt.env.go.jp/)より、暑さ指数 (WBGT)の予測値および実況値
-
-データ取得のための処理を関数化しています。以下のコードを実行することで必要な関数が読み込まれます。
+[環境省 熱中症予防情報サイト](https://www.wbgt.env.go.jp/)より、熱中症警戒アラート、暑さ指数 (WBGT)の予測値および実況値のデータ取得のための処理を関数化しています。以下のコードを実行することで必要な関数が読み込まれます。
 
 ```r
 library(magrittr)
@@ -126,6 +124,16 @@ read_moe_wbgt(type = "observe", station = "Osaka", year_month = "202205")
 # ダウンロード済みのファイルを読み込む
 parse_moe_wbgt_csv("Tokyo_202204.csv",
                    file_type = "2-D")
+```
+
+## 熱中症警戒アラート
+
+```r
+source("https://raw.githubusercontent.com/uribo/japan-heatstroke/main/R/moe_alert.R")
+```
+
+```r
+read_moe_alert(2022)
 ```
 
 ## 注意

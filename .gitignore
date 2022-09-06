@@ -8,3 +8,4 @@ data-raw/*.csv
 .DS_Store
 *.xlsx
 data/gtrends_20040101-20220801.rds
+data-raw/moe_alert_*.csv

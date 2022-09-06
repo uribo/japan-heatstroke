@@ -1,4 +1,4 @@
-read_moe_wbgt <- function(type, station = NULL, station_no = NULL, prefecture = NULL, year_month = NULL) {
+read_moe_wbgt <- function(type, station = NULL, station_no = NULL, prefecture = NULL, year_month = NULL, .download = TRUE) {
   rlang::arg_match(type,
                    c("forecast", "observe"))
   if (!is.null(station)) {
@@ -15,6 +15,10 @@ read_moe_wbgt <- function(type, station = NULL, station_no = NULL, prefecture = 
                          station = station, 
                          prefecture = prefecture, 
                          year_month = year_month)
+  if (.download) {
+    download.file(csv_url,
+                  basename(csv_url))
+  }
   if (type == "forecast") {
     df <- 
       parse_moe_wbgt_csv(csv_url, file_type = "1-A")

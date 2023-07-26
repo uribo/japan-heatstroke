@@ -14,4 +14,4 @@ LaTeX: pdfLaTeX
 
 AutoAppendNewline: Yes
 
-UseNativePipeOperator: No
+UseNativePipeOperator: Yes

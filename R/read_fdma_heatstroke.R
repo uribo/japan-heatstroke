@@ -3,15 +3,15 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
     sheets <- 
       readxl::excel_sheets(path)
   }
-  sheets %>% 
-    purrr::map_dfr(
+  sheets |> 
+    purrr::map(
       function(.x) {
         ncols <-
           ncol(readxl::read_xlsx(path, sheet = .x, n_max = 1))
         if (ncols == 14L) {
           df <- 
-            readxl::read_xlsx(path, sheet = sheets[2]) %>% 
-            dplyr::select(seq_len(14)) %>% 
+            readxl::read_xlsx(path, sheet = sheets[2]) |> 
+            dplyr::select(seq_len(14)) |> 
             purrr::set_names(
               c("日付",
                             "都道府県コード",
@@ -27,7 +27,7 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
             )
           if (nest == TRUE) {
             df <- 
-              df %>% 
+              df |> 
               tidyr::nest(age_class   = tidyselect::starts_with("年齢区分"),
                           status_type = tidyselect::starts_with("傷病程度"))
           }
@@ -54,13 +54,13 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
                                                   sep = "：")),
                               col_types = c("date",
                                             "text",
-                                            rep("numeric", 20))) %>% 
+                                            rep("numeric", 20))) |> 
             dplyr::mutate(
               `都道府県コード` = stringr::str_pad(都道府県コード, width = 2, pad = "0"),
               `日付` = lubridate::as_date(日付))
           if (nest == TRUE) {
             df <- 
-              df %>% 
+              df |> 
               tidyr::nest(age_class   = tidyselect::starts_with("年齢区分"),
                           status_type = tidyselect::starts_with("傷病程度"),
                           place_type  = tidyselect::starts_with("発生場所"))
@@ -69,4 +69,27 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
         df
       }
     )
+}
+
+
+read_fdma_heatstroke_all <- function(path) {
+  sheets <- 
+    readxl::excel_sheets(path)
+  purrr::map(
+    sheets,
+    ~ read_fdma_heatstroke(path,
+                           sheets = .x)) |> 
+    dplyr::bind_rows() |> 
+    dplyr::rename(date = 日付,
+                  jis_code = 都道府県コード,
+                  value = `搬送人員（計）`)
+}
+
+fdma_df_longer <- function(data, column) {
+  data |> 
+    tidyr::unnest(cols = {{ column }}) |> 
+    tidyr::pivot_longer(cols = tidyselect::contains("："),
+                        names_to = "type",
+                        values_to = "count",
+                        names_prefix = ".+：")
 }

@@ -8,8 +8,7 @@
 [環境省 熱中症予防情報サイト](https://www.wbgt.env.go.jp/)より、熱中症警戒アラート、暑さ指数 (WBGT)の予測値および実況値のデータ取得のための処理を関数化しています。以下のコードを実行することで必要な関数が読み込まれます。
 
 ```r
-library(magrittr)
-source("https://raw.githubusercontent.com/uribo/japan-heatstroke/main/R/read_moe_wbgt.R")
+source("R/read_moe_wbgt.R")
 ```
 
 `read_moe_wbgt()`関数を使い、予測値と実況値の取得を行います。取得対象のデータに応じて、以下のように引数の指定方法が変わります。各データの詳細は暑さ指数(WBGT)予測値等 電子情報提供サービスのページより確認ください。
@@ -26,11 +25,11 @@ source("https://raw.githubusercontent.com/uribo/japan-heatstroke/main/R/read_moe
 read_moe_wbgt(type = "forecast", station_no = "43056")
 ```
 
-地点の指定を引数`station_no`で与えます。これは5桁の半角数字です。指定可能な840地点については、リポジトリに含めたデータセットより探せます。例えば茨城県つくば市「つくば」の`station_no`は次のコードを実行することで確認できます。
+地点の指定を引数`station_no`で与えます。これは5桁の半角数字です。指定可能な841地点については、リポジトリに含めたデータセットから探せます。例えば茨城県つくば市「つくば」の`station_no`は次のコードを実行することで確認できます。
 
 ```r
 df_wbgt_stations <- 
-  readr::read_csv("data/wbgt_stations2022.csv",
+  readr::read_csv("data/wbgt_stations2023.csv",
                   col_types = "cccc")
 subset(df_wbgt_stations, station_name == "つくば")
 ```
@@ -78,12 +77,12 @@ parse_moe_wbgt_csv("yohou_all.csv",
 ### 2-A. 地点別
 
 ```r
-read_moe_wbgt(type = "observe", station_no = "43056", year_month = "202204")
+read_moe_wbgt(type = "observe", station_no = "43056", year_month = "202304")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("wbgt_43056_202204.csv",
+parse_moe_wbgt_csv("wbgt_43056_202304.csv",
                    file_type = "2-A")
 ```
 
@@ -91,24 +90,24 @@ parse_moe_wbgt_csv("wbgt_43056_202204.csv",
 ### 2-B. 都道府県別
 
 ```r
-read_moe_wbgt(type = "observe", prefecture = "gifu", year_month = "202207")
+read_moe_wbgt(type = "observe", prefecture = "gifu", year_month = "202306")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("wbgt_gifu_202207.csv",
+parse_moe_wbgt_csv("wbgt_gifu_202306.csv",
                    file_type = "2-B")
 ```
 
 ### 2-C. 全地点
 
 ```r
-read_moe_wbgt(type = "observe", year_month = "202204")
+read_moe_wbgt(type = "observe", year_month = "202304")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("wbgt_all_202204.csv",
+parse_moe_wbgt_csv("wbgt_all_202304.csv",
                    file_type = "2-C")
 ```
 
@@ -117,28 +116,28 @@ parse_moe_wbgt_csv("wbgt_all_202204.csv",
 特定の11地点については実測値のデータ取得が可能です。`read_moe_wbgt()`では`station`引数にローマ字（頭文字のみ大文字）で対象の地点名を与えて実行します。
 
 ```r
-read_moe_wbgt(type = "observe", station = "Osaka", year_month = "202205")
+read_moe_wbgt(type = "observe", station = "Osaka", year_month = "202305")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("Tokyo_202204.csv",
+parse_moe_wbgt_csv("Tokyo_202305.csv",
                    file_type = "2-D")
 ```
 
 ## 熱中症警戒アラート
 
 ```r
-source("https://raw.githubusercontent.com/uribo/japan-heatstroke/main/R/moe_alert.R")
+source("R/moe_alert.R")
 ```
 
 ```r
-read_moe_alert(2022)
+read_moe_alert(2023)
 ```
 
 ## 注意
 
-- 熱中症予防情報サイトからのデータ提供は2022年10月26日までとなります。
+- 熱中症予防情報サイトからのデータ提供は2023年10月25日までとなります。
 - データの詳細、利用に関しては、熱中症予防情報サイトに掲載された情報を参考にしてください。
 
 ## ライセンス

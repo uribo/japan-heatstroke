@@ -82,10 +82,9 @@ moe_wbgt_request_url <- function(type, station_no = NULL, prefecture = NULL, sta
 }
 
 moe_wbgt_request_urls <- function(...) {
-  list(...) %>% 
-    purrr::pmap_chr(
-      moe_wbgt_request_url
-    )
+  purrr::pmap_chr(
+    list(...),
+    moe_wbgt_request_url)
 }
 
 parse_moe_wbgt_csv <- function(path, file_type, .station_no = NULL, .station = NULL) {
@@ -103,23 +102,23 @@ parse_moe_wbgt_csv <- function(path, file_type, .station_no = NULL, .station = N
                           ...2 = readr::col_character())))
     
     df <- 
-      df %>%
-      dplyr::select(!2) %>% 
+      df |> 
+      dplyr::select(!2) |> 
       tidyr::pivot_longer(cols = seq.int(2, ncol(df)-1),
                           names_to = "datetime",
-                          values_to = "wbgt") %>%
+                          values_to = "wbgt") |> 
       dplyr::mutate(type = "forecast",
                     datetime = lubridate::as_datetime(datetime,
                                                       format = "%Y%m%d %H",
-                                                      tz = "Asia/Tokyo")) %>%
-      dplyr::relocate(type, .before = 1) %>%
+                                                      tz = "Asia/Tokyo")) |> 
+      dplyr::relocate(type, .before = 1) |> 
       dplyr::rename(station_no = ...1)
     
   } else if (file_type == "2-A") {
     if (is.null(.station_no)) {
       .station_no <- 
         stringr::str_remove_all(path,
-                                ".+/") %>% 
+                                ".+/") |> 
         stringr::str_extract("(?<=\\_).*?(?=\\_)")
     }
     df <-
@@ -130,11 +129,11 @@ parse_moe_wbgt_csv <- function(path, file_type, .station_no = NULL, .station = N
                         date = readr::col_date(format = "%Y/%m/%d"),
                         time = readr::col_character(),
                         wbgt = readr::col_double())
-      ) %>% 
+      ) |> 
       dplyr::mutate(type = "observe",
                     station_no = .station_no,
-                    time = hms::as_hms(paste0(time, ":00"))) %>% 
-      dplyr::relocate(type, .before = 1) %>% 
+                    time = hms::as_hms(paste0(time, ":00"))) |>  
+      dplyr::relocate(type, .before = 1) |> 
       dplyr::relocate(station_no, .before = wbgt)
   } else if (file_type %in% c("2-B", "2-C", "2-D")) {
     df <- 
@@ -145,29 +144,29 @@ parse_moe_wbgt_csv <- function(path, file_type, .station_no = NULL, .station = N
                         Time = readr::col_character())) 
     if (file_type %in% c("2-B", "2-C")) {
       df <-
-        df %>% 
+        df |> 
         tidyr::pivot_longer(cols = seq.int(3, ncol(df)),
                             names_to = "station_no",
-                            values_to = "wbgt") %>% 
+                            values_to = "wbgt") |> 
         dplyr::rename(date = Date,
-                      time = Time) %>% 
+                      time = Time) |> 
         dplyr::mutate(type = "observe",
-                      time = hms::as_hms(paste0(time, ":00"))) %>% 
+                      time = hms::as_hms(paste0(time, ":00"))) |> 
         dplyr::relocate(type, .before = 1)
     } else if (file_type == "2-D") {
       if (is.null(.station)) {
         .station <- 
           stringr::str_remove_all(path,
-                                  ".+/") %>% 
+                                  ".+/") |> 
           stringr::str_remove_all("_.+")        
       }
       df <- 
-        df %>% 
-        purrr::set_names(c("date", "time", "wbgt", "tg")) %>% 
+        df |> 
+        purrr::set_names(c("date", "time", "wbgt", "tg")) |> 
         dplyr::mutate(type = "observe",
                       station = .station,
-                      time = hms::as_hms(paste0(time, ":00"))) %>% 
-        dplyr::relocate(type, .before = 1) %>% 
+                      time = hms::as_hms(paste0(time, ":00"))) |> 
+        dplyr::relocate(type, .before = 1) |> 
         dplyr::relocate(station, .after = type)
     }
   }

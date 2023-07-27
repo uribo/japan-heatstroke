@@ -9,14 +9,14 @@ read_moe_alert <- memoise::memoise(
     }
     x <- 
       rvest::read_html(tgt_url)
-    x %>% 
-      rvest::html_nodes(css = "#maincontent > div > table") %>% 
-      rvest::html_table() %>% 
+    x |> 
+      rvest::html_nodes(css = "#maincontent > div > table") |> 
+      rvest::html_table() |> 
       purrr::pluck(1)
   })
 
 alert_to_long <- function(df, year) {
-  df %>% 
+  df |> 
     purrr::set_names(
       c(names(df)[1:2],
         paste0(
@@ -26,12 +26,12 @@ alert_to_long <- function(df, year) {
           " ",
           paste0(c(5, 17), ":00:00")
         ))
-    ) %>%
-    dplyr::slice(-1) %>% 
+    ) |> 
+    dplyr::slice(-1) |>  
     tidyr::pivot_longer(cols = contains("/"),
                         names_to = "datetime",
-                        values_to = "alert") %>% 
-    readr::type_convert("cdcc") %>% 
+                        values_to = "alert") |> 
+    readr::type_convert("cdcc") |> 
     dplyr::mutate(datetime = lubridate::as_datetime(datetime),
                   alert = dplyr::if_else(alert == "\u25cf",
                                          TRUE,

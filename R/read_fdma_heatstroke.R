@@ -10,7 +10,7 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
           ncol(readxl::read_xlsx(path, sheet = .x, n_max = 1))
         if (ncols == 14L) {
           df <- 
-            readxl::read_xlsx(path, sheet = sheets[2]) |> 
+            readxl::read_xlsx(path, sheet = .x) |> 
             dplyr::select(seq_len(14)) |> 
             purrr::set_names(
               c("日付",
@@ -54,10 +54,8 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
                                                   sep = "：")),
                               col_types = c("date",
                                             "text",
-                                            rep("numeric", 20))) |> 
-            dplyr::mutate(
-              `都道府県コード` = stringr::str_pad(都道府県コード, width = 2, pad = "0"),
-              `日付` = lubridate::as_date(日付))
+                                            rep("numeric", 20)))
+
           if (nest == TRUE) {
             df <- 
               df |> 
@@ -66,7 +64,10 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
                           place_type  = tidyselect::starts_with("発生場所"))
           }
         }
-        df
+        df |> 
+          dplyr::mutate(
+            `都道府県コード` = stringr::str_pad(都道府県コード, width = 2, pad = "0"),
+            `日付` = lubridate::as_date(日付))
       }
     )
 }

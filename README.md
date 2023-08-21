@@ -5,6 +5,11 @@
 
 ## 対象データ
 
+- [環境省 熱中症予防情報サイト](#環境省熱中症予防情報サイト)
+- [消防庁 熱中症情報](#消防庁熱中症情報)
+
+## 【環境省】熱中症予防情報サイト
+
 [環境省 熱中症予防情報サイト](https://www.wbgt.env.go.jp/)より、熱中症警戒アラート、暑さ指数 (WBGT)の予測値および実況値のデータ取得のための処理を関数化しています。以下のコードを実行することで必要な関数が読み込まれます。
 
 ```r
@@ -15,11 +20,11 @@ source("R/read_moe_wbgt.R")
 
 ダウンロードされたデータを読み込むには`parse_moe_wbgt_csv()`で対象ファイルのパスとファイルの種類を指定します。
 
-## 1. 予測値
+### 1. 予測値
 
 予測値を取得する場合、`type`引数の値を`forecast`に固定します。以下に示すように他の引数との組み合わせにより、取得されるデータが変わります。
 
-### 1-A. 地点別
+#### 1-A. 地点別
 
 ```r
 read_moe_wbgt(type = "forecast", station_no = "43056")
@@ -40,7 +45,7 @@ parse_moe_wbgt_csv("yohou_43056.csv",
                    file_type = "1-A")
 ```
 
-### 1-B. 都道府県別
+#### 1-B. 都道府県別
 
 `prefecture`引数に対象の都道府県名（ローマ字表記、すべて小文字）を与えます。次の例では「岐阜県」内の全地点の予測値を取得します。
 
@@ -54,7 +59,7 @@ parse_moe_wbgt_csv("yohou_ibaraki.csv",
                    file_type = "1-B")
 ```
 
-### 1-C. 全地点
+#### 1-C. 全地点
 
 全地点での発表されている予測値を一度に取得するには`type`以外の引数を指定せずに実行します。
 
@@ -68,13 +73,13 @@ parse_moe_wbgt_csv("yohou_all.csv",
                    file_type = "1-C")
 ```
 
-## 実況値
+### 実況値
 
 実況値は過去のデータになります。予測値と同様に地点、都道府県、全地点の単位で取得しますが、期間を選ぶオプションがあります。これは2022年4月からの各月を、YYYYMMの形式で指定します。例えば2022年4月であれば「202204」となります。また実況値は、特定の地点に関してはその実測値を求めることが可能です。
 
 実況値の取得は、データの種類を問わず`read_moe_wbgt(type = "observe")`としてください。また、予測値と同じく`parse_moe_wbgt_csv()`を使うことでダウンロードされたファイルの読み込みにも対応します。
 
-### 2-A. 地点別
+#### 2-A. 地点別
 
 ```r
 read_moe_wbgt(type = "observe", station_no = "43056", year_month = "202304")
@@ -87,7 +92,7 @@ parse_moe_wbgt_csv("wbgt_43056_202304.csv",
 ```
 
 
-### 2-B. 都道府県別
+#### 2-B. 都道府県別
 
 ```r
 read_moe_wbgt(type = "observe", prefecture = "gifu", year_month = "202306")
@@ -99,7 +104,7 @@ parse_moe_wbgt_csv("wbgt_gifu_202306.csv",
                    file_type = "2-B")
 ```
 
-### 2-C. 全地点
+#### 2-C. 全地点
 
 ```r
 read_moe_wbgt(type = "observe", year_month = "202304")
@@ -111,7 +116,7 @@ parse_moe_wbgt_csv("wbgt_all_202304.csv",
                    file_type = "2-C")
 ```
 
-### 2-D. 実測地点別
+#### 2-D. 実測地点別
 
 特定の11地点については実測値のデータ取得が可能です。`read_moe_wbgt()`では`station`引数にローマ字（頭文字のみ大文字）で対象の地点名を与えて実行します。
 
@@ -125,7 +130,7 @@ parse_moe_wbgt_csv("Tokyo_202305.csv",
                    file_type = "2-D")
 ```
 
-## 熱中症警戒アラート
+### 熱中症警戒アラート
 
 ```r
 source("R/moe_alert.R")
@@ -135,10 +140,27 @@ source("R/moe_alert.R")
 read_moe_alert(2023)
 ```
 
+## 【消防庁】熱中症情報
+
+[消防庁 熱中症情報](https://www.fdma.go.jp/disaster/heatstroke/post3.html)より、「熱中症による救急搬送人員に関するデータ」のエクセルファイルとして提供される過去データ（平成20年～令和5年）を読み込む関数があります。
+
+```r
+source("R/read_fdma_heatstroke.R")
+```
+
+```r
+# 月別に分かれたシート番号を指定して読み込む
+read_fdma_heatstroke("heatstroke003_data_r4.xlsx", sheets = 1, nest = TRUE)
+
+# ファイル中のすべての月を一つにまとめて読み込む
+read_fdma_heatstroke_all("heatstroke003_data_r4.xlsx")
+```
+
+
 ## 注意
 
 - 熱中症予防情報サイトからのデータ提供は2023年10月25日までとなります。
-- データの詳細、利用に関しては、熱中症予防情報サイトに掲載された情報を参考にしてください。
+- 各データの詳細、利用に関しては、データ提供ページに掲載された情報を参考にしてください。
 
 ## ライセンス
 

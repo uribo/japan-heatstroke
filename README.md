@@ -7,6 +7,7 @@
 
 - [環境省 熱中症予防情報サイト](#環境省熱中症予防情報サイト)
 - [消防庁 熱中症情報](#消防庁熱中症情報)
+- [厚生労働省 人口動態統計](#厚生労働省人口動態統計)
 
 ## 【環境省】熱中症予防情報サイト
 
@@ -156,6 +157,19 @@ read_fdma_heatstroke("heatstroke003_data_r4.xlsx", sheets = 1, nest = TRUE)
 read_fdma_heatstroke_all("heatstroke003_data_r4.xlsx")
 ```
 
+## 【厚生労働省】人口動態統計
+
+厚生労働省が行う人口動態調査から、熱中症に関する死亡数をまとめた「人口動態統計」のデータを扱います。
+対象年は2015年から2021年です。熱中症による死因を「`X30 (自然の過度の高温への曝露)`」と見なし、その場所・性別・年齢別での集計値を取得します。
+
+```r
+# このコードを実行するとcsvファイルが生成されます
+source("data-raw/vital_stats.R")
+```
+
+```r
+readr::read_csv("data-raw/vital_stats_hs_mortality.csv", col_types = "cccii")
+```
 
 ## 注意
 

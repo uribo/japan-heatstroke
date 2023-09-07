@@ -32,3 +32,23 @@ df |>
                     destfile = here::here(glue::glue("data-raw/pref07/{name}.pdf")))
     }
   )
+
+
+# 2. PDFからのデータ抽出 ----------------------------------------------------------
+library(pdftools)
+
+# pdf_ocr_data(here::here("data-raw/pref07/令和2年.pdf"), 
+#                        pages = 1, 
+#                        language = "jpn")
+
+x <- 
+  pdf_text(here::here("data-raw/pref07/令和2年.pdf"))
+
+xx <- 
+  x[[1]] |> 
+  stringr::str_split("\n", simplify = FALSE)
+
+xx[[1]][18]
+xx[[1]][19] |> 
+  stringr::str_split("[[:space:]]")
+xx[[1]][20]

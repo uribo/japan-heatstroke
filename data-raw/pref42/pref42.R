@@ -1,5 +1,5 @@
 #################################
 # 42. 長崎県
 # 熱中症による救急搬送人員数について
-# ref) https://www.pref.saga.lg.jp/kiji00336883/index.html
+# ref) https://www.pref.nagasaki.jp/press-contents/626772/index.html
 #################################

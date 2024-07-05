@@ -1,4 +1,5 @@
 ####################################
+# 【令和６年度】
 # 環境省の暑さ指数 (WBGT) 予測値等電子情報提供サービス
 # 観測地点... 
 # - 予測値... 841地点
@@ -12,6 +13,7 @@ library(zipangu)
 library(jmastats)
 library(sf)
 library(dplyr)
+library(ensurer)
 conflicted::conflict_prefer(name = "filter", winner = "dplyr")
 
 pdf_table_to_df <- function(text) {
@@ -36,10 +38,41 @@ pdf_table_to_df <- function(text) {
                        "所在地"))    
 }
 
+
+collect_wbgt_stations <- function(pdf, start_page, end_page, ignores = NULL) {
+  text <-
+    pdftools::pdf_text(pdf)
+  d <- 
+    seq.int(start_page, end_page) |> 
+    purrr::map(
+      ~ pdf_table_to_df(text[[.x]])) |> 
+    purrr::list_rbind()
+  if (!is.null(ignores)) {
+    d <-
+      d |>
+      # 暑さ指数情報の提供を終了。一部はデータ移行されている
+      dplyr::filter(!`地点番号` %in% ignores)
+  }
+  d
+}
+
+join_jma_stations <- function(df) {
+  jmastats::stations |> 
+    sf::st_drop_geometry() |>  
+    dplyr::select(area, station_no, station_name, pref_code) |> 
+    dplyr::distinct(station_no, station_name, .keep_all = TRUE) |>  
+    dplyr::inner_join(df |> 
+                        dplyr::select(`地点番号`, `観測所名`) |> 
+                        dplyr::mutate(`地点番号` = as.integer(`地点番号`)),　
+                      by = dplyr::join_by("station_no" == "地点番号",
+                                          "station_name" == "観測所名"))
+}
+
 make_wbgt_observe <- function(pdf) {
   text <-
     pdftools::pdf_text(pdf)
   d <-
+    # 最終ページ
     text[[length(text)]] |>
     stringr::str_split("\n", simplify = TRUE) |>
     c() |>
@@ -73,6 +106,46 @@ make_wbgt_observe <- function(pdf) {
     assertr::verify(nrow(.) == 47L)
 }
 
+
+# R6 (2024) ---------------------------------------------------------------
+if (!file.exists(here::here("data/wbgt_stations2024.csv"))) {
+  # Press Release: https://www.env.go.jp/press/press_03083.html
+  if (!file.exists(here::here("data-raw/R06_wbgt_data_service_manual.pdf"))) {
+    download.file("https://www.wbgt.env.go.jp/man15NH/R06_wbgt_data_service_manual.pdf",
+                  destfile = here::here("data-raw/R06_wbgt_data_service_manual.pdf"))
+  }
+  # 【別表１】2024年度暑さ指数(WBGT)情報提供地点一覧
+  d <- 
+    collect_wbgt_stations(here::here("data-raw/R06_wbgt_data_service_manual.pdf"),
+                        17,
+                        29,
+                        ignores = c("34361", "41171", "48541",
+                                    "84356", "84596", "86156")) |> 
+    ensurer::ensure(nrow(.) == 841L)
+  df_wbgt_stations <- 
+    join_jma_stations(d) |> 
+    ensurer::ensure(nrow(.) == 841L)
+  d |> 
+    filter(!`観測所名` %in% df_wbgt_stations$station_name) |> 
+    ensurer::ensure(nrow(.) == 0L)
+  
+  df_wbgt_stations |> 
+    readr::write_csv(here::here("data/wbgt_stations2024.csv"))
+  
+}
+if (!file.exists(here::here("data/wbgt_observe2024.csv"))) {
+  if (!file.exists(here::here("data-raw/R06_wbgt_data_service_manual.pdf"))) {
+    download.file("https://www.wbgt.env.go.jp/man15NH/R06_wbgt_data_service_manual.pdf",
+                  destfile = here::here("data-raw/R06_wbgt_data_service_manual.pdf"))
+  }
+  df_wbgt_observe2024 <- 
+    make_wbgt_observe(here::here("data-raw/R06_wbgt_data_service_manual.pdf"))
+  df_wbgt_observe2024 |> 
+    readr::write_csv(here::here("data/wbgt_observe2024.csv"))
+}
+
+
+# R5 (2023) ---------------------------------------------------------------
 if (!file.exists(here::here("data/wbgt_stations2023.csv"))) {
   # https://www.env.go.jp/press/press_01497.html
   
@@ -80,38 +153,16 @@ if (!file.exists(here::here("data/wbgt_stations2023.csv"))) {
     download.file("https://www.wbgt.env.go.jp/man15NH/R05_wbgt_data_service_manual.pdf",
                   destfile = here::here("data-raw/R05_wbgt_data_service_manual.pdf"))
   }
-  text <-
-    pdftools::pdf_text(here::here("data-raw/R05_wbgt_data_service_manual.pdf"))
-  
   d <- 
-    seq.int(10, 22) |> 
-    purrr::map(
-      ~ pdf_table_to_df(text[[.x]])) |> 
-    purrr::list_rbind() |> 
-    ensurer::ensure(nrow(.) == 847L)
-  
-  d <- 
-    d |> 
-    # 暑さ指数情報の提供を終了。一部はデータ移行されている
-    filter(!`地点番号` %in% c("34361", "41171", "48541",
-                          "84356", "84596", "86156")) |> 
+    collect_wbgt_stations(here::here("data-raw/R05_wbgt_data_service_manual.pdf"),
+                          10,
+                          22,
+                          ignores = c("34361", "41171", "48541",
+                                      "84356", "84596", "86156")) |> 
     ensurer::ensure(nrow(.) == 841L)
-  
   df_wbgt_stations <- 
-    jmastats::stations |> 
-    sf::st_drop_geometry() |>  
-    select(area, station_no, station_name, pref_code) |> 
-    distinct(station_no, station_name, .keep_all = TRUE) |>  
-    inner_join(d |> 
-                 select(`地点番号`, `観測所名`) |> 
-                 mutate(`地点番号` = as.integer(`地点番号`)),　
-               by = c("station_no" = "地点番号",
-                      "station_name" = "観測所名")) |> 
+    join_jma_stations(d) |> 
     ensurer::ensure(nrow(.) == 841L)
-
-  d |> 
-    filter(!`観測所名` %in% df_wbgt_stations$station_name)
-  
   df_wbgt_stations |> 
     readr::write_csv(here::here("data/wbgt_stations2023.csv"))
 }
@@ -127,6 +178,8 @@ if (!file.exists(here::here("data/wbgt_observe2023.csv"))) {
     readr::write_csv(here::here("data/wbgt_observe2023.csv"))
 }
 
+
+# R4 (2022) ---------------------------------------------------------------
 if (!file.exists(here::here("data/wbgt_stations2022.csv"))) {
   if (!file.exists("data-raw/R04_wbgt_data_service_manual.pdf")) {
     download.file("https://www.wbgt.env.go.jp/man15NH/R04_wbgt_data_service_manual.pdf",
@@ -174,3 +227,16 @@ if (!file.exists(here::here("data/wbgt_observe2022.csv"))) {
   df_wbgt_observe2022 |> 
     readr::write_csv(here::here("data/wbgt_observe2022.csv"))
 }
+
+
+# R3以前 --------------------------------------------------------------------
+# 2021 https://www.env.go.jp/press/109512.html
+# 2020 https://www.env.go.jp/press/107955.html
+# 2019 https://www.env.go.jp/press/106685.html
+# 2018 https://www.env.go.jp/press/105362.html
+# 2017 https://www.env.go.jp/press/103938.html
+# 2016 https://www.env.go.jp/press/102502.html
+# 2015 https://www.env.go.jp/press/100964.html
+# 2014 https://www.env.go.jp/press/18132.html
+# 2013 https://www.env.go.jp/press/16634.html 全国841地点（昨年は約150地点）
+# 2014 https://www.env.go.jp/press/18132.html

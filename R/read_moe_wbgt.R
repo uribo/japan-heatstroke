@@ -48,6 +48,10 @@ read_moe_wbgt <- function(type, station = NULL, station_no = NULL, prefecture = 
 # moe_wbgt_request_url(type = "observe", year_month = "202004")
 # # 大文字
 # moe_wbgt_request_url(type = "observe", station = "Tokyo", year_month = "202004")
+# prev15WG ... 予測値
+# est15WG ... 実況値
+# final ... 
+# mntr ... 実測地点別の予測値
 moe_wbgt_request_url <- function(type, station_no = NULL, prefecture = NULL, station = NULL, year_month = NULL) {
   rlang::arg_match(type,
                    c("forecast", "observe"))
@@ -56,9 +60,9 @@ moe_wbgt_request_url <- function(type, station_no = NULL, prefecture = NULL, sta
     if (!is.null(station_no)) {
       glue::glue("{domain_url}/prev15WG/dl/yohou_{station_no}.csv")
     } else if (!is.null(prefecture)) {
-      glue::glue("https://www.wbgt.env.go.jp/prev15WG/dl/yohou_{prefecture}.csv")
+      glue::glue("{domain_url}/prev15WG/dl/yohou_{prefecture}.csv")
     } else if (type == "forecast" & is.null(station_no) & is.null(prefecture)) {
-      "https://www.wbgt.env.go.jp/prev15WG/dl/yohou_all.csv"
+      glue::glue("{domain_url}/prev15WG/dl/yohou_all.csv")
     }
   } else if (type == "observe") {
     year <- 

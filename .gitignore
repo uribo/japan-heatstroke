@@ -11,3 +11,4 @@ data/gtrends_20040101-20220801.rds
 data-raw/moe_alert_*.csv
 data/gtrends_20040101-20230701.rds
 data-raw/shelter
+data/shelter/pref=*/*_geo.csv

@@ -1,4 +1,5 @@
 ##############################
+# クーリングシェルター
 # (市区町村内でのNo.), 施設名, 所在地, 開放日, 開放時間, 受入可能人数
 # 1/47
 # [ ] 01 北海道
@@ -53,6 +54,7 @@ library(rvest)
 library(jpcity)
 library(dplyr)
 library(pointblank)
+library(tidygeocoder)
 glue_destfile <- function(url, pref_name, city_name, ...) {
   city_code <- 
     jpcity::find_city(c({{ pref_name }}, {{ city_name }}), ...) |> 
@@ -662,7 +664,7 @@ if (!file.exists("data-raw/shelter/pref=36徳島県/36207-美馬市_開放公共
     destfile = "data-raw/shelter/pref=36徳島県/36207-美馬市_開放公共施設.pdf")  
 }
 
-df_26207 <-
+df_36207 <-
   tibble::tibble(
   番号 = 1:13,
   施設名称 = c(
@@ -843,8 +845,8 @@ df_26207 <-
   )
 
 
-df_26207 <- 
-  df_26207 |> 
+df_36207 <- 
+  df_36207 |> 
   dplyr::relocate(type, .before = 1) |> 
   dplyr::rename(`No.` = `番号`,
                 `施設名` = `施設名称`,
@@ -1631,6 +1633,7 @@ df_36489 <-
   dplyr::mutate(`No.` = as.character(dplyr::row_number()),
                 .before = 1)
 
+# 結合
 ls(pattern = "^df_36") |> 
   purrr::map(
     \(x) colnames(get(x))
@@ -1651,8 +1654,10 @@ df_pref36 <-
     \(x) get(x)
   ) |> 
   purrr::list_rbind(names_to = "city_code") |> 
-  row_count_match(135L) |> 
-  dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringi::stri_trans_nfkc))
+  row_count_match(161L) |> 
+  dplyr::mutate(dplyr::across(tidyselect::where(is.character), 
+                              \(x) stringi::stri_trans_nfkc(x) |> 
+                                stringr::str_squish()))
 
 df_pref36 <- 
   df_pref36 |> 
@@ -1665,23 +1670,45 @@ df_pref36 <-
   dplyr::select(prefecture, city_code, city_name, tidyselect::everything())
 
 df_pref36 |> 
+  readr::write_csv(here::here("data/shelter/pref=36/徳島県クーリングシェルター一覧.csv"))
+
+df_pref36 |> 
   filter(`所在地` == "徳島市北田宮四丁目6番60号") |> 
   pull(`施設名`)
 
-# library(tidygeocoder)
-# geo(address = "徳島市北田宮四丁目6番60号", method = "mapbox")
+df_pref36_geo <- 
+  df_pref36 |> 
+  distinct(city_code, type, No., 所在地)
 
-structure(
-  list(
-    address = "徳島市北田宮四丁目6番60号",
-    lat = 34.088344,
-    long = 134.529322
-  ),
-  class = c("tbl_df", "tbl", "data.frame"),
-  row.names = c(NA, -1L)
-) |> 
-  sf::st_as_sf(coords = c("long", "lat"), crs = 4326) |> 
-  mapview::mapview()
+df_pref36_geo |> 
+  count(city_code, type, No., sort = TRUE) |> 
+  filter(n > 1)
+
+if (!file.exists(here::here("data/shelter/pref=36/徳島県クーリングシェルター一覧_geo.csv"))) {
+  df_pref36_geo$所在地 # 実行前に確認
+  # geo(address = "徳島市北田宮四丁目6番60号", method = "mapbox")
+  df_pref36_geo <- 
+    df_pref36_geo |> 
+    mutate(geo = purrr::pmap(list(address = 所在地, method = "mapbox"), geo))
+  
+  df_pref36_geo |> 
+    tidyr::unnest_wider(geo) |> 
+    readr::write_csv(here::here("data/shelter/pref=36/徳島県クーリングシェルター一覧_geo.csv"))  
+}
+
+
+
+# structure(
+#   list(
+#     address = "徳島市北田宮四丁目6番60号",
+#     lat = 34.088344,
+#     long = 134.529322
+#   ),
+#   class = c("tbl_df", "tbl", "data.frame"),
+#   row.names = c(NA, -1L)
+# ) |> 
+#   sf::st_as_sf(coords = c("long", "lat"), crs = 4326) |> 
+#   mapview::mapview()
 
 df_pref36 |> 
   View()

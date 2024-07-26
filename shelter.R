@@ -59,6 +59,10 @@ glue_destfile <- function(url, pref_name, city_name, ...) {
   city_code <- 
     jpcity::find_city(c({{ pref_name }}, {{ city_name }}), ...) |> 
     jpcity::city_code()
+  if (length(city_code) > 0) {
+    city_code <- 
+      city_code[1]
+  }
   pref_code <-
     stringr::str_sub(city_code, 1, 2)
   file_ext <- 
@@ -228,7 +232,8 @@ df_36202 <-
 
 df_36202 <-
   df_36202 |> 
-  dplyr::mutate(`No.` = as.character(`No.`))
+  dplyr::mutate(`No.` = as.character(`No.`)) |> 
+  dplyr::mutate(所在地 = paste0("鳴門市", 所在地))
 
 ## 小松島市 (PDF)
 x <- "https://www.city.komatsushima.lg.jp/fs/5/6/7/7/3/7/_/%E3%82%AF%E3%83%BC%E3%83%AA%E3%83%B3%E3%82%B0%E3%82%B7%E3%82%A7%E3%83%AB%E3%82%BF%E3%83%BC%E6%8C%87%E5%AE%9A%E6%96%BD%E8%A8%AD%E4%B8%80%E8%A6%A7.pdf"
@@ -482,7 +487,8 @@ df_36204 <-
   dplyr::rename(`開放日` = `開放日（※）`,
                 `開放時間` = `時間帯`) |> 
   dplyr::select(!電話番号) |> 
-  dplyr::mutate(`No.` = as.character(`No.`))
+  dplyr::mutate(`No.` = as.character(`No.`)) |> 
+  dplyr::mutate(所在地 = paste0("阿南市", 所在地))
 
 ## 吉野川市
 x <- "https://www.city.yoshinogawa.lg.jp/docs/2024070300028/"
@@ -841,6 +847,9 @@ df_36207 <-
       ),
       受入可能人数 = c(3, 5, 4, 4, 4, 5, 1, 3, 3, 5, 3, 3, 5)
     ) |> 
+      dplyr::rename(`施設名称` = 店舗等名称,
+                    留意事項 = 利用上の注意事項,
+                    番号 = 指定番号) |> 
       dplyr::mutate(type = "指定民間施設")
   )
 
@@ -866,54 +875,119 @@ if (!file.exists(glue_destfile(x, "徳島県", "三好市"))) {
 
 read_html(glue_destfile(x, "徳島県", "三好市")) |>
   html_table(header = TRUE) |>
-  purrr::pluck(1) |>
+  purrr::pluck(2) |>
   dput()
 
 df_36208 <- 
   structure(
-  list(
-    No. = c("１", "２", "３", "４", "５", "６", "７"),
-    施設名 = c(
-      "阿波市役所　吉野支所",
-      "阿波市役所　土成支所",
-      "土成中央公民館",
-      "阿波市役所　本庁",
-      "大俣公民館",
-      "阿波市役所　阿波支所",
-      "伊沢公民館"
+    list(
+      施設名 = c(
+        "三好市保健センター",
+        "三好市井川支所",
+        "三好市山城支所",
+        "三好市西祖谷支所",
+        "三好市東祖谷支所",
+        "三好市三野図書室",
+        "三好市井川図書館\r\n\r\n\t\t\t（井川ふるさと交流センター）",
+        "三好市中央公民館",
+        "池田総合体育館",
+        "道の駅三野",
+        "道の駅にしいや",
+        "箸蔵とことん",
+        "東祖谷郷土文化保存伝習施設",
+        "三好市中央図書館"
+      ),
+      所在地 = c(
+        "池田町シンマチ1476-1",
+        "井川町辻73",
+        "山城町大川持586-6",
+        "西祖谷山村一宇343-2",
+        "東祖谷京上157-2",
+        "三野町芝生1039",
+        "井川町岡野前64",
+        "池田町マチ2476",
+        "池田町マチ2551-1",
+        "三野町太刀野1909-1",
+        "西祖谷山村尾井ノ内348-1",
+        "池田町州津乳ノ木1382-1",
+        "東祖谷京上14-3",
+        "池田町サラダ1836-1"
+      ),
+      電話番号 = c(
+        "0883-72-6767",
+        "0883-78-5001",
+        "0883-86-1111",
+        "0883-87-2211",
+        "0883-88-2211",
+        "0883-77-2248",
+        "0883-78-4311",
+        "0883-72-3700",
+        "0883-72-5755",
+        "0883-76-2050",
+        "0883-87-2670",
+        "0883-87-8155",
+        "0883-88-2286",
+        "0883-72-2781"
+      ),
+      開放日 = c(
+        "月～金",
+        "月～金",
+        "月～金",
+        "月～金",
+        "月～金",
+        "火～金\r\n\r\n\t\t\t \r\n\r\n\t\t\t土日祝日",
+        "月、水～日",
+        "月、水～金",
+        "月～日",
+        "火～日",
+        "月～日",
+        "月、水～日",
+        "月、火、木～日",
+        "月、火、木～日\r\n\r\n\t\t\t（特別休館日は除く）"
+      ),
+      時間帯 = c(
+        "8:30～17:15",
+        "8:30～17:15",
+        "8:30～17:15",
+        "8:30～17:15",
+        "8:30～17:15",
+        "9:00～19:00\r\n\r\n\t\t\t10:00～17:00",
+        "10:00～19:00",
+        "8:30～17:15",
+        "9:00～22:00",
+        "9:00～17:00",
+        "9:00～17:00",
+        "10:00～16:00",
+        "9:30～16:00",
+        "10:00～19:00"
+      ),
+      受入可能人数 = c(
+        "",
+        "",
+        "",
+        "",
+        "",
+        "6人",
+        "5人",
+        "5人",
+        "10～15人",
+        "5人",
+        "5人",
+        "5人",
+        "3人",
+        "5人"
+      )
     ),
-    所在地 = c(
-      "阿波市吉野町西条\r\n\r\n\t\t\t字大西５３番地１",
-      "阿波市土成町土成\r\n\r\n\t\t\t字丸山１０番地",
-      "阿波市土成町土成\r\n\r\n\t\t\t字漆畑２２０番地１",
-      "阿波市市場町切幡\r\n\r\n\t\t\t字古田２０１番地１",
-      "阿波市市場町上喜来\r\n\r\n\t\t\t字田中６０２番地３",
-      "阿波市阿波町東原\r\n\r\n\t\t\t１７３番地１",
-      "阿波市阿波町南柴生\r\n\r\n\t\t\t８４番地"
-    ),
-    開放日 = c(
-      "月～金\r\n\r\n\t\t\t（祝日を除く）",
-      "月～金\r\n\r\n\t\t\t（祝日を除く）",
-      "火～日",
-      "月～金\r\n\r\n\t\t\t（祝日を除く）",
-      "月～金\r\n\r\n\t\t\t（祝日を除く）",
-      "月～金\r\n\r\n\t\t\t（祝日を除く）",
-      "月～金\r\n\r\n\t\t\t（祝日を除く）"
-    ),
-    開放時間 = c(
-      "8：30～17：15",
-      "8：30～17：15",
-      "9：00～18：00",
-      "8：30～17：15",
-      "9：00～16：00",
-      "8：30～17：15",
-      "9：00～16：00"
-    ),
-    受入可能人数 = c("６人", "５人", "２０人", "２０人", "１０人", "１０人", "８人")
-  ),
-  row.names = c(NA, -7L),
-  class = c("tbl_df", "tbl", "data.frame")
-)
+    row.names = c(NA, -14L),
+    class = c("tbl_df", "tbl", "data.frame")
+  )
+
+df_36208 <- 
+  df_36208 |> 
+  dplyr::rename(`開放時間` = `時間帯`) |> 
+  dplyr::mutate(`No.` = as.character(row_number()),
+                .before = 1) |> 
+  dplyr::mutate(所在地 = paste0("三好市", 所在地))
 
 ## 勝浦町
 x <- "https://www.town.katsuura.lg.jp/docs/2024061300037/"
@@ -1225,7 +1299,8 @@ df_36383 <-
   dplyr::rename(`開設場所` = `開放場所`) |> 
   dplyr::mutate(`No.` = as.character(dplyr::row_number()),
                 .before = 1) |> 
-  dplyr::select(!電話番号)
+  dplyr::select(!電話番号) |> 
+  dplyr::mutate(所在地 = stringr::str_squish(所在地))
 
 ## 美波町
 x <- "https://www.town.minami.lg.jp/docs/ku-ringusyeruta.html"
@@ -1257,7 +1332,8 @@ df_36387 <-
 df_36387 <-
   df_36387 |> 
   dplyr::mutate(`No.` = as.character(dplyr::row_number()),
-                .before = 1)
+                .before = 1) |> 
+  dplyr::mutate(所在地 = paste0("美波町", 所在地))
 
 ## 海陽町
 x <- "https://www.town.kaiyo.lg.jp/docs/2024061700028/"
@@ -1363,7 +1439,8 @@ df_36388 <-
   df_36388 |> 
   dplyr::rename(`開放日` = `解放日`) |> 
   dplyr::mutate(`No.` = as.character(dplyr::row_number()),
-                .before = 1)
+                .before = 1) |> 
+  dplyr::mutate(所在地 = paste0("海陽町", 所在地))
 
 ## 松茂町
 x <- "https://www.town.matsushige.tokushima.jp/docs/2024052300015/"
@@ -1444,7 +1521,8 @@ df_36402 <-
 df_36402 <-
   df_36402 |> 
   dplyr::mutate(`No.` = as.character(dplyr::row_number()),
-                .before = 1)
+                .before = 1) |> 
+  dplyr::mutate(所在地 = paste0("北島町", 所在地))
 
 ## 藍住町
 x <- "https://www.town.aizumi.lg.jp/docs/2024062000011/"
@@ -1481,7 +1559,8 @@ df_36403 <-
                 開放時間 = `開放日時`,
                 開設場所 = 受入場所) |> 
   dplyr::mutate(`No.` = as.character(dplyr::row_number()),
-                .before = 1)
+                .before = 1) |> 
+  dplyr::mutate(所在地 = paste0("藍住町", 所在地))
 
 ## 板野町
 x <- "http://www.town.itano.tokushima.jp/docs/2024061200030/"
@@ -1490,6 +1569,8 @@ if (!file.exists(glue_destfile(x, "徳島県", "板野町"))) {
                 destfile = glue_destfile(x, "徳島県", "板野町"))  
 }
 
+
+# 所在地なし
 df_36404 <- 
   tibble::tibble(
   `No.` = seq.int(4),
@@ -1505,6 +1586,11 @@ df_36404 <-
                "月曜日から日曜日の午前8時30分から午後6時（臨時休館を除く）",
                "木曜日から火曜日の午前10時から午後9時30分（水曜日が祝日の場合は翌日休館、臨時休館を除く）")
 )
+
+df_36404$所在地 <- c("板野郡板野町那東字大道下１０",
+                  "板野郡板野町犬伏字東谷13-1",
+                  "板野郡板野町川端字中手崎39番地5",
+                  "板野郡板野町大坂椋木原30-1")
 
 df_36404 <-
   df_36404 |> 
@@ -1596,7 +1682,8 @@ df_36468 <-
   dplyr::rename(`開放日` = `開放日（※）` ,
                 `開放時間` = `時間帯`) |> 
   dplyr::mutate(`No.` = as.character(dplyr::row_number()),
-                .before = 1)
+                .before = 1) |> 
+  dplyr::mutate(所在地 = paste0("つるぎ町", 所在地))
 
 ## 東みよし町
 x <- "https://www.town.higashimiyoshi.lg.jp/docs/4041509.html"
@@ -1631,7 +1718,8 @@ df_36489 <-
   dplyr::rename(`開放時間` = `時間帯`) |> 
   dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish)) |> 
   dplyr::mutate(`No.` = as.character(dplyr::row_number()),
-                .before = 1)
+                .before = 1) |> 
+  dplyr::mutate(所在地 = paste0("東みよし町", 所在地))
 
 # 結合
 ls(pattern = "^df_36") |> 
@@ -1654,10 +1742,11 @@ df_pref36 <-
     \(x) get(x)
   ) |> 
   purrr::list_rbind(names_to = "city_code") |> 
-  row_count_match(161L) |> 
+  row_count_match(168L) |> 
   dplyr::mutate(dplyr::across(tidyselect::where(is.character), 
                               \(x) stringi::stri_trans_nfkc(x) |> 
-                                stringr::str_squish()))
+                                stringr::str_squish())) |> 
+  dplyr::mutate(所在地 = stringr::str_c("徳島県", 所在地))
 
 df_pref36 <- 
   df_pref36 |> 
@@ -1673,12 +1762,13 @@ df_pref36 |>
   readr::write_csv(here::here("data/shelter/pref=36/徳島県クーリングシェルター一覧.csv"))
 
 df_pref36 |> 
-  filter(`所在地` == "徳島市北田宮四丁目6番60号") |> 
+  filter(`所在地` == "徳島県徳島市北田宮四丁目6番60号") |> 
   pull(`施設名`)
 
 df_pref36_geo <- 
   df_pref36 |> 
-  distinct(city_code, type, No., 所在地)
+  distinct(city_code, type, No., 所在地) |> 
+  dplyr::filter(!is.na(所在地))
 
 df_pref36_geo |> 
   count(city_code, type, No., sort = TRUE) |> 
@@ -1691,9 +1781,20 @@ if (!file.exists(here::here("data/shelter/pref=36/徳島県クーリングシェ
     df_pref36_geo |> 
     mutate(geo = purrr::pmap(list(address = 所在地, method = "mapbox"), geo))
   
-  df_pref36_geo |> 
+  df_pref36_geo <- 
+    df_pref36_geo |> 
     tidyr::unnest_wider(geo) |> 
-    readr::write_csv(here::here("data/shelter/pref=36/徳島県クーリングシェルター一覧_geo.csv"))  
+    select(!所在地)
+
+  sf_pref36 <- 
+    df_pref36_geo |> 
+    sf::st_as_sf(coords = c("long", "lat"), crs = 4326) 
+  
+  sf_pref36 |> 
+    mapview::mapview()
+  
+  sf_pref36 |> 
+    sf::write_sf("data/shelter/pref=36/徳島県クーリングシェルター一覧.geojson")
 }
 
 

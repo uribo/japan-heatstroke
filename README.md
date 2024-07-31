@@ -93,7 +93,9 @@ parse_moe_wbgt_csv("wbgt_43056_202404.csv",
 ```
 
 
-#### 2-B. 都道府県別
+#### 2-B. 都道府県
+
+2024年のみ
 
 ```r
 read_moe_wbgt(type = "observe", prefecture = "gifu", year_month = "202404")
@@ -106,6 +108,8 @@ parse_moe_wbgt_csv("wbgt_gifu_202404.csv",
 ```
 
 #### 2-C. 全地点
+
+2024年のみ
 
 ```r
 read_moe_wbgt(type = "observe", year_month = "202404")

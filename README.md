@@ -35,7 +35,7 @@ read_moe_wbgt(type = "forecast", station_no = "43056")
 
 ```r
 df_wbgt_stations <- 
-  readr::read_csv("data/wbgt_stations2023.csv",
+  readr::read_csv("data/wbgt_stations2024.csv",
                   col_types = "cccc")
 subset(df_wbgt_stations, station_name == "つくば")
 ```
@@ -83,12 +83,12 @@ parse_moe_wbgt_csv("yohou_all.csv",
 #### 2-A. 地点別
 
 ```r
-read_moe_wbgt(type = "observe", station_no = "43056", year_month = "202304")
+read_moe_wbgt(type = "observe", station_no = "43056", year_month = "202404")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("wbgt_43056_202304.csv",
+parse_moe_wbgt_csv("wbgt_43056_202404.csv",
                    file_type = "2-A")
 ```
 
@@ -96,24 +96,24 @@ parse_moe_wbgt_csv("wbgt_43056_202304.csv",
 #### 2-B. 都道府県別
 
 ```r
-read_moe_wbgt(type = "observe", prefecture = "gifu", year_month = "202306")
+read_moe_wbgt(type = "observe", prefecture = "gifu", year_month = "202404")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("wbgt_gifu_202306.csv",
+parse_moe_wbgt_csv("wbgt_gifu_202404.csv",
                    file_type = "2-B")
 ```
 
 #### 2-C. 全地点
 
 ```r
-read_moe_wbgt(type = "observe", year_month = "202304")
+read_moe_wbgt(type = "observe", year_month = "202404")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("wbgt_all_202304.csv",
+parse_moe_wbgt_csv("wbgt_all_202404.csv",
                    file_type = "2-C")
 ```
 
@@ -122,12 +122,12 @@ parse_moe_wbgt_csv("wbgt_all_202304.csv",
 特定の11地点については実測値のデータ取得が可能です。`read_moe_wbgt()`では`station`引数にローマ字（頭文字のみ大文字）で対象の地点名を与えて実行します。
 
 ```r
-read_moe_wbgt(type = "observe", station = "Osaka", year_month = "202305")
+read_moe_wbgt(type = "observe", station = "Osaka", year_month = "202405")
 ```
 
 ```r
 # ダウンロード済みのファイルを読み込む
-parse_moe_wbgt_csv("Tokyo_202305.csv",
+parse_moe_wbgt_csv("Osaka_202405.csv",
                    file_type = "2-D")
 ```
 
@@ -138,7 +138,10 @@ source("R/moe_alert.R")
 ```
 
 ```r
-read_moe_alert(2023)
+df <- read_moe_alert(2024)
+
+# 発表時間ごとに1行分のデータに変換
+alert_to_long(df, 2024)
 ```
 
 ## 【消防庁】熱中症情報
@@ -173,7 +176,7 @@ readr::read_csv("data-raw/vital_stats_hs_mortality.csv", col_types = "cccii")
 
 ## 注意
 
-- 熱中症予防情報サイトからのデータ提供は2023年10月25日までとなります。
+- 熱中症予防情報サイトからのデータ提供は2024年10月23日までとなります。
 - 各データの詳細、利用に関しては、データ提供ページに掲載された情報を参考にしてください。
 
 ## ライセンス

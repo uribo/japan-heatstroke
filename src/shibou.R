@@ -20,9 +20,20 @@ df <-
                1995),
       count = c(529, 1077, 727, 948, 1731,
                 236, 569, 904,
-                328, 207, 318))
-  )
-  
+                328, 207, 318)))
+
+df |> 
+  slice_max(order_by = year, n = 5) |> 
+  pull(count) |>
+  mean()
+
+# H29(2017)~R3(2021)
+df |> 
+  filter(between(year, 2017, 2021)) |> 
+  pull(count) |> 
+  mean() |> 
+  round()
+
 # df |> 
 #   ggplot() +
 #   aes(year, count) +

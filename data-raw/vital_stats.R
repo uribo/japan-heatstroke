@@ -1,12 +1,12 @@
 ###############################
 # 【厚生労働省】人口動態統計
-# 2015~2021年の熱中症（X30 自然の過度の高温への曝露）死亡数
+# 2015~2022年の熱中症（X30 自然の過度の高温への曝露）死亡数
 ###############################
 if (!file.exists(here::here("data-raw/vital_stats_hs_mortality.csv"))) {
   library(estatapi)
   library(dplyr)
   estatapi::estat_getStatsList(appId = Sys.getenv("ESTAT_TOKEN"),
-                               surveyYears = 2021,
+                               surveyYears = 2022,
                                lang = "J",
                                statsCode = "00450011",
                                searchWord = "交通事故以外の不慮の事故") |> 

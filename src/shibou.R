@@ -1,11 +1,14 @@
 library(dplyr)
 library(ggplot2)
-# 熱中症による死亡数の年次推移（平成7年~令和2年）
-# https://www.mhlw.go.jp/toukei/saikin/hw/jinkou/tokusyu/necchusho20/dl/nenrei.pdf
+library(pointblank)
+# https://www.mhlw.go.jp/toukei/saikin/hw/jinkou/tokusyu/necchusho22/index.html
+# 年齢（５歳階級）別にみた熱中症による死亡数の年次推移（平成７年～令和４年）
+# https://www.mhlw.go.jp/toukei/saikin/hw/jinkou/tokusyu/necchusho22/dl/nenrei.pdf
 df <-
   bind_rows(
     readr::read_csv(here::here("data-raw/vital_stats_hs_mortality.csv"),
                     col_types = "cccii") |> 
+      row_count_match(2376L) |> 
       filter(place == "総数",
              gender == "総数",
              age_class == "総数") |> 

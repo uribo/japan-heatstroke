@@ -8,22 +8,36 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
       function(.x) {
         ncols <-
           ncol(readxl::read_xlsx(path, sheet = .x, n_max = 1))
+        vars <- list(
+          core = c("日付",
+                       "都道府県コード",
+                       "搬送人員（計）",
+                       "年齢区分",
+                       "傷病程度"))
+        vars$age <- 
+          paste(core_vars[4],
+              c("新生児", "乳幼児", "少年",
+                "成人", "高齢者", "不明"),
+              sep = "：")
+        vars$status <- 
+          paste(core_vars[5],
+              c("死亡", "重症", "中等症", 
+                "軽症", "その他"),
+              sep = "：")
+        vars$place <-
+          paste("発生場所",
+                c("住居", "仕事場\u2460", "仕事場\u2461",
+                  "教育機関", "公衆(屋内)", 
+                  "公衆(屋外)", "道路", "その他"),
+                sep = "：")
         if (ncols == 14L) {
           df <- 
             readxl::read_xlsx(path, sheet = .x) |> 
             dplyr::select(seq_len(14)) |> 
             purrr::set_names(
-              c("日付",
-                            "都道府県コード",
-                            "搬送人員（計）", 
-                            paste("年齢区分",
-                                  c("新生児", "乳幼児", "少年",
-                                    "成人", "高齢者", "不明"),
-                                  sep = "："),
-                            paste("傷病程度",
-                                  c("死亡", "重症", "中等症", 
-                                    "軽症", "その他"),
-                                  sep = "："))
+              c(vars$core[seq.int(3)], 
+                vars$age,
+                vars$status)
             )
           if (nest == TRUE) {
             df <- 
@@ -36,22 +50,10 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
             readxl::read_xlsx(path, 
                               sheet = 1,
                               skip  = 1,
-                              col_names = c("日付",
-                                            "都道府県コード",
-                                            "搬送人員（計）", 
-                                            paste("年齢区分",
-                                                  c("新生児", "乳幼児", "少年",
-                                                    "成人", "高齢者"),
-                                                  sep = "："),
-                                            paste("傷病程度",
-                                                  c("死亡", "重症", "中等症", 
-                                                    "軽症", "その他"),
-                                                  sep = "："),
-                                            paste("発生場所",
-                                                  c("住居", "仕事場\u2460", "仕事場\u2461",
-                                                    "教育機関", "公衆(屋内)", 
-                                                    "公衆(屋外)", "道路", "その他"),
-                                                  sep = "：")),
+                              col_names = c(vars$core[seq.int(3)], 
+                                            vars$age[-6],
+                                            vars$status,
+                                            vars$place),
                               col_types = c("date",
                                             "text",
                                             rep("numeric", 19)))
@@ -60,22 +62,10 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
             readxl::read_xlsx(path, 
                               sheet = .x,
                               skip  = 1,
-                              col_names = c("日付",
-                                            "都道府県コード",
-                                            "搬送人員（計）", 
-                                            paste("年齢区分",
-                                                  c("新生児", "乳幼児", "少年",
-                                                    "成人", "高齢者", "不明"),
-                                                  sep = "："),
-                                            paste("傷病程度",
-                                                  c("死亡", "重症", "中等症", 
-                                                    "軽症", "その他"),
-                                                  sep = "："),
-                                            paste("発生場所",
-                                                  c("住居", "仕事場\u2460", "仕事場\u2461",
-                                                    "教育機関", "公衆(屋内)", 
-                                                    "公衆(屋外)", "道路", "その他"),
-                                                  sep = "：")),
+                              col_names = c(vars$core[seq.int(3)], 
+                                            vars$age,
+                                            vars$status,
+                                            vars$place),
                               col_types = c("date",
                                             "text",
                                             rep("numeric", 20)))

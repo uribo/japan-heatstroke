@@ -48,7 +48,7 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
         } else if (ncols == 21L) {
           df <-
             readxl::read_xlsx(path, 
-                              sheet = 1,
+                              sheet = .x,
                               skip  = 1,
                               col_names = c(vars$core[seq.int(3)], 
                                             vars$age[-6],
@@ -80,8 +80,8 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
         }
         df |> 
           dplyr::mutate(
-            `都道府県コード` = stringr::str_pad(都道府県コード, width = 2, pad = "0"),
-            `日付` = lubridate::as_date(日付))
+            `都道府県コード` = stringr::str_pad(`都道府県コード`, width = 2, pad = "0"),
+            `日付` = lubridate::as_date(`日付`))
       }
     )
 }
@@ -95,8 +95,8 @@ read_fdma_heatstroke_all <- function(path) {
     ~ read_fdma_heatstroke(path,
                            sheets = .x)) |> 
     dplyr::bind_rows() |> 
-    dplyr::rename(date = 日付,
-                  jis_code = 都道府県コード,
+    dplyr::rename(date = `日付`,
+                  jis_code = `都道府県コード`,
                   value = `搬送人員（計）`)
 }
 

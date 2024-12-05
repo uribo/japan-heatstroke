@@ -15,12 +15,12 @@ read_fdma_heatstroke <- function(path, sheets = NULL, nest = TRUE) {
                        "年齢区分",
                        "傷病程度"))
         vars$age <- 
-          paste(core_vars[4],
+          paste(vars$core[4],
               c("新生児", "乳幼児", "少年",
                 "成人", "高齢者", "不明"),
               sep = "：")
         vars$status <- 
-          paste(core_vars[5],
+          paste(vars$core[5],
               c("死亡", "重症", "中等症", 
                 "軽症", "その他"),
               sep = "：")

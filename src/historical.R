@@ -17,14 +17,23 @@
 # wbgt_stations2023.csv
 # https://www.wbgt.env.go.jp/mntr/2023/wbgt_2023/wbgt_34296_202310.csv
 # 2023年4~10月(7ヶ月)
+# 2024年4~9月(6ヶ月) (2024-10-01)
+# [todo] 10月分の取得
 # 取得が行えるのは2024-10-23までなので注意
 # 17:00が最後の記録？
+# station_nameの変更
+# 45148: 銚子（千葉） 2024年4月からは「45148」、それより前は「45147」
+# df_station |>
+#   dplyr::filter(station_name == "福島")
 ################################
 source(here::here("R/read_moe_wbgt.R"))
-fs::dir_create("~/Documents/resources/環境省/熱中症予防情報サイト/地点別_実況推定値/確定版/")
-fs::dir_create("~/Documents/resources/環境省/熱中症予防情報サイト/地点別_実況推定値/速報版/")
+fs::dir_create("~/OneDrive - Tokushima University/resources/環境省/熱中症予防情報サイト/地点別_実況推定値/確定版/")
+fs::dir_create("~/OneDrive - Tokushima University/resources/環境省/熱中症予防情報サイト/地点別_実況推定値/速報版/")
 
 list_station_csv <- function(station_no, category = "確定版") {
+  category <- 
+    rlang::arg_match(category, 
+                   c("確定版", "速報版"))
   if (category == "確定版") {
     file_name <-
       glue::glue("final_wbgt_{station_no}_.+.csv")
@@ -33,12 +42,15 @@ list_station_csv <- function(station_no, category = "確定版") {
       glue::glue("wbgt_{station_no}_.+.csv")
   }
   fs::dir_ls(
-    glue::glue("~/Documents/resources/環境省/熱中症予防情報サイト/地点別_実況推定値/{category}/"),
+    glue::glue("~/OneDrive - Tokushima University/resources/環境省/熱中症予防情報サイト/地点別_実況推定値/{category}/"),
     regexp = file_name)
 }
 # length(list_station_csv(14116))
 
 collect_wbgt_data <- function(station_no, category = "確定版") {
+  category <- 
+    rlang::arg_match(category, 
+                     c("確定版", "速報版"))
   if (category == "確定版") {
     year <- 
       seq.int(2018, 2023)
@@ -84,7 +96,7 @@ collect_wbgt_data <- function(station_no, category = "確定版") {
                 httr2::resp_body_raw() |> 
                 readr::write_file(
                   glue::glue("{dir}/{file}",
-                             dir = glue::glue("~/Documents/resources/環境省/熱中症予防情報サイト/地点別_実況推定値/{category}/"),
+                             dir = glue::glue("~/OneDrive - Tokushima University/resources/環境省/熱中症予防情報サイト/地点別_実況推定値/{category}/"),
                              file = basename(url))
                 )
             }
@@ -100,11 +112,12 @@ collect_wbgt_data <- function(station_no, category = "確定版") {
 }
 
 # 速報版 ---------------------------------------------------------------------
-# 2024年は取得せず (2024-07-31)
+# 202404~09まで取得済み (2024-10-01)
+# 10も途中まで
 df_station <- 
-  readr::read_csv(here::here("data/wbgt_stations2023.csv"), col_types = "cdcc")
+  readr::read_csv(here::here("data/wbgt_stations2024.csv"), col_types = "cdcc")
 
-df_station$station_no[3:nrow(df_station)] |> 
+df_station$station_no[2:nrow(df_station)] |> 
   purrr::map(
     ~ collect_wbgt_data(.x, category = "速報版"))
 
@@ -117,7 +130,7 @@ df_station$station_no |>
 # 確定版 ---------------------------------------------------------------------
 # 2023-10まで取得済み (2024-08-02)
 tibble::tibble(
-  station_no = fs::dir_ls("~/Documents/resources/環境省/熱中症予防情報サイト/地点別_実況推定値/確定版/") |> 
+  station_no = fs::dir_ls("~/OneDrive - Tokushima University/resources/環境省/熱中症予防情報サイト/地点別_実況推定値/確定版/") |> 
       basename() |> 
       stringr::str_remove("final_wbgt_") |> 
       stringr::str_remove("_[0-9]{1,}.csv")) |> 
@@ -135,6 +148,15 @@ tibble::tibble(
 
 df_station <- 
   readr::read_csv(here::here("data/wbgt_stations2023.csv"), col_types = "cdcc")
+
+# df_station$station_no |> 
+#   purrr::map_lgl(
+#     \(x) length(list_station_csv(x, category = "確定版")) != 42L
+#   ) |> 
+#   which()
+df_station$station_no[c(252, 283, 406,752, 759)]
+df_station |> 
+  dplyr::filter(station_no %in% c(34296, 36127, 48536, 84306, 84597))
 
 # 取得は分けて行う
 df_station$station_no[800:nrow(df_station)] |> 
